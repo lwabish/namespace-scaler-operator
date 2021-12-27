@@ -1,0 +1,24 @@
+# permissions for end users to edit nsscalers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nsscaler-editor-role
+rules:
+- apiGroups:
+  - operators.wubw.fun
+  resources:
+  - nsscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operators.wubw.fun
+  resources:
+  - nsscalers/status
+  verbs:
+  - get

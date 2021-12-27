@@ -1,0 +1,6 @@
+apiVersion: operators.wubw.fun/v1alpha1
+kind: NSScaler
+metadata:
+  name: nsscaler-sample
+spec:
+  # Add fields here
