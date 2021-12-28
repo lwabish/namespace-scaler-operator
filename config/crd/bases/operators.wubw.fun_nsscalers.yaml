@@ -36,12 +36,14 @@ spec:
           spec:
             description: NSScalerSpec defines the desired state of NSScaler
             properties:
-              active_namespaces:
-                description: Foo is an example field of NSScaler. Edit nsscaler_types.go
-                  to remove/update
+              active_namespace_suffixes:
+                description: scope内命名空间后缀有哪些是会用到的，这些不会被scale成0
                 items:
                   type: string
                 type: array
+              scope_prefix:
+                description: 控制器作用于哪些命名空间？用前缀filter出来。 对于不包含在prefix内的命名空间不会干预。
+                type: string
             type: object
           status:
             description: NSScalerStatus defines the observed state of NSScaler

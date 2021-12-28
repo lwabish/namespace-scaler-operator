@@ -4,3 +4,7 @@ metadata:
   name: nsscaler-sample
 spec:
   # Add fields here
+  active_namespaces:
+    - a
+    - b
+    - c

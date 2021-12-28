@@ -28,8 +28,11 @@ type NSScalerSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of NSScaler. Edit nsscaler_types.go to remove/update
-	ActiveNamespaces []string `json:"active_namespaces,omitempty"`
+	// 控制器作用于哪些命名空间？用前缀filter出来。
+	// 对于不包含在prefix内的命名空间不会干预。
+	ScopePrefix string `json:"scope_prefix,omitempty"`
+	// scope内命名空间后缀有哪些是会用到的，这些不会被scale成0
+	ActiveNamespaceSuffixes []string `json:"active_namespace_suffixes,omitempty"`
 }
 
 // NSScalerStatus defines the observed state of NSScaler
