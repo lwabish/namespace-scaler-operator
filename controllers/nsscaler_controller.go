@@ -18,6 +18,8 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/klog/v2"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -50,7 +52,26 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	_ = log.FromContext(ctx)
 
 	// your logic here
+	instance := &operatorsv1alpha1.NSScaler{}
+	err := r.Get(ctx, req.NamespacedName, instance)
+	if err != nil {
+		// cr被删了
+		if errors.IsNotFound(err) {
+			// 如果需要清理
+			return ctrl.Result{}, nil
+		}
+		// 读取错误，重新协调
+		return ctrl.Result{}, err
+	}
+	// 拿到cr的spec
+	klog.Infoln(instance.Spec.ActiveNamespaces)
 
+	// 更新cr的status
+	instance.Status.Done = !instance.Status.Done
+	err = r.Status().Update(context.TODO(), instance)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 	return ctrl.Result{}, nil
 }
 
