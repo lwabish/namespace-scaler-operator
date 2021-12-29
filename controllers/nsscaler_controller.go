@@ -18,9 +18,8 @@ package controllers
 
 import (
 	"context"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/klog/v2"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -63,8 +62,19 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		// 读取错误，重新协调
 		return ctrl.Result{}, err
 	}
+
+	// 获取ns列表
+	nsList := &v1.NamespaceList{}
+	err = r.List(ctx, nsList, &client.ListOptions{})
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	//for _, v := range nsList.Items {
+	//
+	//}
 	// 拿到cr的spec
-	klog.Infoln(instance.Spec.ActiveNamespaces)
+	//klog.Infoln(instance.Spec.ActiveNamespaceSuffixes)
 
 	// 更新cr的status
 	instance.Status.Done = !instance.Status.Done
