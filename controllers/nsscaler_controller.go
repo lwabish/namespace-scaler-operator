@@ -50,7 +50,7 @@ type NSScalerReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.10.0/pkg/reconcile
 func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
 	// your logic here
 	instance := &operatorsv1alpha1.NSScaler{}
@@ -102,6 +102,7 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 						if err != nil {
 							return ctrl.Result{}, err
 						}
+						logger.Info("NsScaler scaled[namespace+name]:", d.Namespace, d.Name)
 					}
 				}
 
