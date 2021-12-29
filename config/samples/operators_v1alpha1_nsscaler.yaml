@@ -4,7 +4,8 @@ metadata:
   name: nsscaler-sample
 spec:
   # Add fields here
-  active_namespaces:
-    - a
-    - b
-    - c
+  scope_prefix: meci
+  active_namespace_suffixes:
+    - "1"
+    - "2"
+    - "3"
