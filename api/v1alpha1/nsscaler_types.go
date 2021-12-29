@@ -37,8 +37,7 @@ type NSScalerSpec struct {
 
 // NSScalerStatus defines the observed state of NSScaler
 type NSScalerStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// 被prefix包含，且不活跃的命名空间内没有一个pod时，Done为true
 	Done bool `json:"done,omitempty"`
 }
 
