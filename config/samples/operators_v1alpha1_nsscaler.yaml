@@ -3,9 +3,6 @@ kind: NSScaler
 metadata:
   name: nsscaler-sample
 spec:
-  # Add fields here
-  scope_prefix: meci
+  scope_prefix: "kube-"
   active_namespace_suffixes:
-    - "1"
-    - "2"
-    - "3"
+    - "system"
