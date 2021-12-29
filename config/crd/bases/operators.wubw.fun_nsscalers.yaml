@@ -14,7 +14,7 @@ spec:
     listKind: NSScalerList
     plural: nsscalers
     singular: nsscaler
-  scope: Namespaced
+  scope: Cluster
   versions:
   - name: v1alpha1
     schema:

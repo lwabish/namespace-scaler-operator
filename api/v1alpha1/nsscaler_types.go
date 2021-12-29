@@ -44,6 +44,7 @@ type NSScalerStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster
 
 // NSScaler is the Schema for the nsscalers API
 type NSScaler struct {
