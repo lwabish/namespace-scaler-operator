@@ -49,9 +49,7 @@ spec:
             description: NSScalerStatus defines the observed state of NSScaler
             properties:
               done:
-                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                  of cluster Important: Run "make" to regenerate code after modifying
-                  this file'
+                description: 被prefix包含，且不活跃的命名空间内没有一个pod时，Done为true
                 type: boolean
             type: object
         type: object
