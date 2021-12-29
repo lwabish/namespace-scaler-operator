@@ -18,12 +18,14 @@ package controllers
 
 import (
 	"context"
-	v1 "k8s.io/api/core/v1"
+	appsV1 "k8s.io/api/apps/v1"
+	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"strings"
 
 	operatorsv1alpha1 "github.com/lwabish/namespace-scaler-operator/api/v1alpha1"
 )
@@ -64,20 +66,59 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// 获取ns列表
-	nsList := &v1.NamespaceList{}
+	nsList := &coreV1.NamespaceList{}
 	err = r.List(ctx, nsList, &client.ListOptions{})
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	//for _, v := range nsList.Items {
-	//
-	//}
-	// 拿到cr的spec
-	//klog.Infoln(instance.Spec.ActiveNamespaceSuffixes)
+	var protectedNamespaces = make(map[string]struct{}, len(instance.Spec.ActiveNamespaceSuffixes))
+	var p = instance.Spec.ScopePrefix
+	var noPodObserved = true
+
+	for _, s := range instance.Spec.ActiveNamespaceSuffixes {
+		protectedNamespaces[p+s] = struct{}{}
+	}
+
+	for _, v := range nsList.Items {
+		thisNamespace := v.Name
+		if strings.HasPrefix(thisNamespace, p) {
+			if _, ok := protectedNamespaces[thisNamespace]; !ok {
+				// 符合前缀的命名空间，且不处于活跃状态的
+				//logger.Info("result", thisNamespace, thisNamespace)
+
+				// 拿到所有deploy
+				deploys := &appsV1.DeploymentList{}
+				err = r.List(ctx, deploys, &client.ListOptions{Namespace: thisNamespace})
+				if err != nil {
+					return ctrl.Result{}, err
+				}
+
+				// 把replica不等于0的scale到0
+				for _, d := range deploys.Items {
+					if d.Spec.Replicas != nil && *d.Spec.Replicas > 0 {
+						*d.Spec.Replicas = 0
+						err = r.Update(ctx, &d, &client.UpdateOptions{})
+						if err != nil {
+							return ctrl.Result{}, err
+						}
+					}
+				}
+
+				// 尝试维护状态
+				if !noPodObserved {
+					pods := &coreV1.PodList{}
+					err = r.List(ctx, pods, &client.ListOptions{Namespace: thisNamespace})
+					if len(pods.Items) > 0 {
+						noPodObserved = false
+					}
+				}
+			}
+		}
+	}
 
 	// 更新cr的status
-	instance.Status.Done = !instance.Status.Done
+	instance.Status.Done = noPodObserved
 	err = r.Status().Update(context.TODO(), instance)
 	if err != nil {
 		return ctrl.Result{}, err
