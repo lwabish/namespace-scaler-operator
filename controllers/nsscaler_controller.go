@@ -55,12 +55,15 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// your logic here
 	instance := &operatorsv1alpha1.NSScaler{}
 	err := r.Get(ctx, req.NamespacedName, instance)
+	logger.Info("starting")
 	if err != nil {
 		// cr被删了
 		if errors.IsNotFound(err) {
+			logger.Info("deleted", "error", err)
 			// 如果需要清理
 			return ctrl.Result{}, nil
 		}
+		logger.Info("error encountered", "error", err)
 		// 读取错误，重新协调
 		return ctrl.Result{}, err
 	}
@@ -69,6 +72,7 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	nsList := &coreV1.NamespaceList{}
 	err = r.List(ctx, nsList, &client.ListOptions{})
 	if err != nil {
+		logger.Error(err, "error list namespace")
 		return ctrl.Result{}, err
 	}
 
@@ -85,12 +89,13 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		if strings.HasPrefix(thisNamespace, p) {
 			if _, ok := protectedNamespaces[thisNamespace]; !ok {
 				// 符合前缀的命名空间，且不处于活跃状态的
-				//logger.Info("result", thisNamespace, thisNamespace)
+				logger.Info("found target ns", "namespace", thisNamespace)
 
 				// 拿到所有deploy
 				deploys := &appsV1.DeploymentList{}
 				err = r.List(ctx, deploys, &client.ListOptions{Namespace: thisNamespace})
 				if err != nil {
+					logger.Error(err, "err list deploy")
 					return ctrl.Result{}, err
 				}
 
@@ -100,6 +105,7 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 						*d.Spec.Replicas = 0
 						err = r.Update(ctx, &d, &client.UpdateOptions{})
 						if err != nil {
+							logger.Error(err, "err update deploy")
 							return ctrl.Result{}, err
 						}
 						logger.Info("NsScaler scaled[namespace+name]:", d.Namespace, d.Name)
@@ -119,6 +125,7 @@ func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// 更新cr的status
+	logger.Info("reconcile result status: ", "noPodObserved", noPodObserved)
 	instance.Status.Done = noPodObserved
 	err = r.Status().Update(context.TODO(), instance)
 	if err != nil {
