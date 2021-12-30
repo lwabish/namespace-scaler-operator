@@ -4,7 +4,7 @@ layout:
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: 12-namespace-scaler-operator
+projectName: namespace-scaler-operator
 repo: github.com/lwabish/namespace-scaler-operator
 resources:
 - api:
