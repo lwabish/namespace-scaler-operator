@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: scaler-test
+  name: scaler-test
+  namespace: kube-public
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scaler-test
+  template:
+    metadata:
+      labels:
+        app: scaler-test
+    spec:
+      containers:
+      - image: nginx:alpine
+        name: nginx
