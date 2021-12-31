@@ -42,11 +42,13 @@ type NSScalerReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
+// Modify the Reconcile function to compare the state specified by
 // the NSScaler object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
-//
+// todo: 借鉴lru，理论上来讲，一个命名空间所有pod里最后更新过的pod的时间可以作为命名空间的最后活跃时间
+// 增加参数：保留活跃命名空间的个数，按最后活跃时间排序，超过保留个数的命名空间里的deploy全部缩成0
+// todo: 增加一个无用的spec参数，用来手动触发协调循环
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.10.0/pkg/reconcile
 func (r *NSScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
